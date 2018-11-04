@@ -33,7 +33,7 @@ class GCN(nn.Module):
         return F.log_softmax(x, dim=1)
 
 class Generator(nn.Module):
-    def __init__(self, numV):
+    def __init__(self):
         super(Generator, self).__init__()
 
         self.gc1 = GraphConvolution(2, 5)
@@ -64,6 +64,8 @@ class Discriminator(nn.Module):
         self.gc1 = GraphConvolution(2, 5)
         self.gc2 = GraphConvolution(5, 1)
         self.linear = torch.nn.Linear(numV, 1)
+        torch.nn.init.xavier_uniform_(self.linear.weight)
+
 
     def forward(self, x, adj):
 
