@@ -29,12 +29,19 @@ class GraphConvolution(Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input, adj):
-        support = torch.mm(input, self.weight)
-        output = torch.spmm(adj, support)
-        if self.bias is not None:
-            return output + self.bias
-        else:
-            return output
+        # try:
+        support = torch.bmm(input, self.weight.unsqueeze(0).expand(input.size(0), *self.weight.size()))
+        # except:
+
+        output = [] 
+        for i in range(support.shape[0]):
+            out = torch.mm(adj[i], support[i])
+            if self.bias is not None:
+                out = out + self.bias
+            output.append(out.view(1, out.shape[0], out.shape[1]))
+        output = torch.cat(output, dim=0)
+        
+        return output
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' \

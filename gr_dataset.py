@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 
 import logging as lg
 import numpy as np
-
+import cv2 as cv
 ADJACENCY = torch.FloatTensor(
   [0, 1, 1, 0,
    1, 0, 0, 1,
@@ -37,7 +37,7 @@ TODO: 1. schema for padding
   def __init__(self,
                ds_length=65536 # length of dataset
   ) :
-    super().__init__()
+    super(gr_dataset, self).__init__()
     self.ds_length = ds_length
 
   def __len__(self) :
@@ -105,16 +105,11 @@ if __name__ == '__main__' :
   start = time.time()
   lg.info('Start' )
   
-  seq = None
-  for i, (A, X) in enumerate(dataloader) :
-    if i == 0 :
-      lg.info((A.size(), A.dtype, A[0]))
-      lg.info((X.size(), X.dtype, X[0]))
-      seq = X[:4]
-
-  end = time.time()
-  lg.info('End: %s', delT(seconds=(end-start)))
-  # takes 24s for N=1024k on my dabba
-
-  cv.imwrite('/home/bvr/tmp/draw.png', draw(seq, 256))
   
+def drawRec(A,X, name=""):
+
+  lg.info((A.size(), A.dtype, A[0]))
+  lg.info((X.size(), X.dtype, X[0]))
+  seq = X[:4]
+
+  cv.imwrite(name +'.png', draw(seq, 256))
