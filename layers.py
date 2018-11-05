@@ -43,6 +43,23 @@ class GraphConvolution(Module):
         
         return output
 
+    def forwardP(self, input, adj):
+        # try:
+        support = torch.bmm(input, self.weight.unsqueeze(0).expand(input.size(0), *self.weight.size()))
+        # except:
+
+        output = [] 
+        for i in range(support.shape[0]):
+            out = torch.mm(adj[i], support[i])
+            if self.bias is not None:
+                out = out + self.bias
+            output.append(out.view(1, out.shape[0], out.shape[1]))
+        output = torch.cat(output, dim=0)
+        
+        import pdb
+        pdb.set_trace()
+        return output
+
     def __repr__(self):
         return self.__class__.__name__ + ' (' \
                + str(self.in_features) + ' -> ' \

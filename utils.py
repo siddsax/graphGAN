@@ -55,12 +55,13 @@ def load_data(path="../data/cora/", dataset="cora"):
 def load_adj(adj):
 
     # build symmetric adjacency matrix
-    a = adj + torch.t(adj)*(torch.t(adj) > adj).type(torch.FloatTensor)
-    adj = a - adj*(torch.t(adj) > adj).type(torch.FloatTensor)
+    typ = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+    a = adj + torch.t(adj)*(torch.t(adj) > adj).type(typ)
+    adj = a - adj*(torch.t(adj) > adj).type(typ)
 
     # features = normalize(features)
-    adj = adj + torch.eye(adj.shape[0])
-    
+    adj = adj + 2*torch.eye(adj.shape[0])
+
     adj = torch.nn.functional.normalize(adj, p=2, dim=1)
     return adj
 

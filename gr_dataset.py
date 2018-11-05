@@ -8,12 +8,20 @@ import cv2 as cv
 import random
 from utils import *
 
+# ADJACENCY = torch.FloatTensor(
+#   [0, 1, 1, 0,
+#    1, 0, 0, 1,
+#    1, 0, 0, 1,
+#    0, 1, 1, 0]
+# ).reshape((-1, 4))
+
 ADJACENCY = torch.FloatTensor(
   [0, 1, 1, 0,
    1, 0, 0, 1,
    1, 0, 0, 1,
    0, 1, 1, 0]
 ).reshape((-1, 4))
+
 
 def rand_verts() :
   result, _ = torch.rand(2, 2, dtype=torch.float).sort(dim=0)

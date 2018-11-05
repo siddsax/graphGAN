@@ -77,19 +77,27 @@ class GeneratorFT(nn.Module):
         super(GeneratorFT, self).__init__()
 
         self.gc1 = GraphConvolution(2, 5)
-        self.gc2 = GraphConvolution(5, 8)
-        self.gc3 = GraphConvolution(8, 5)
+        self.gc2 = GraphConvolution(5, 5)
+        # self.gc3 = GraphConvolution(8, 5)
         self.gc4 = GraphConvolution(5, 2)
         
         # self.predAdj = predAdj()
 
     def forward(self, x, adj):
+# .forwardP
+        # import pdb
+        # pdb.set_trace()
+        x = F.relu(self.gc1.forward(x, adj))
+        # import pdb
+        # pdb.set_trace()
+        x = F.relu(self.gc2.forward(x, adj))
+                
+        # import pdb
+        # pdb.set_trace()
+        x = self.gc4(x, adj)
 
-        x = F.relu(self.gc1(x, adj))
-        x = F.relu(self.gc2(x, adj))
-        x = F.relu(self.gc3(x, adj))
-        x = F.relu(self.gc4(x, adj))
-
+        # import pdb
+        # pdb.set_trace()
         return x
 
 class DiscriminatorFT(nn.Module):
