@@ -94,7 +94,7 @@ class GeneratorFT(nn.Module):
                 
         # import pdb
         # pdb.set_trace()
-        x = self.gc4(x, adj)
+        x = torch.sigmoid(self.gc4(x, adj))
 
         # import pdb
         # pdb.set_trace()
