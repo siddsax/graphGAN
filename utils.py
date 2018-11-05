@@ -59,8 +59,8 @@ def load_adj(adj):
     adj = a - adj*(torch.t(adj) > adj).type(torch.FloatTensor)
 
     # features = normalize(features)
-    # adj = normalize(adj + torch.eye(adj.shape[0]))
-
+    adj = adj + torch.eye(adj.shape[0])
+    
     adj = torch.nn.functional.normalize(adj, p=2, dim=1)
     return adj
 
