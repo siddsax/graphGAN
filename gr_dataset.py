@@ -5,6 +5,8 @@ from torch.utils.data import Dataset
 import logging as lg
 import numpy as np
 import cv2 as cv
+import random
+
 ADJACENCY = torch.FloatTensor(
   [1, 1, 1, 0,
    1, 1, 0, 1,
@@ -21,6 +23,53 @@ def rand_verts() :
 
   return result
 
+def mtol(adjacency) :
+  return [
+    tuple(torch.nonzero(c).reshape(-1).tolist())
+    for c in adjacency
+  ]
+
+def flatten(nested) :
+  '''Works with 2d lists'''
+  return list(itertools.chain(*nested))
+
+def ltom(adjal, n=None) :
+  if not n :
+    n = 1 + max(flatten(adjal))
+
+  adjacency = torch.zeros((n, n), dtype=torch.float)
+  for i, edges in enumerate(adjal) :
+    adjacency[i, edges] = 1.
+
+  return adjacency
+
+def permute(adjacency, features) :
+  n = len(features)
+  lg.debug('permute: len(features): %d', n)
+
+  p = list(range(n))
+  random.shuffle(p)
+  lg.debug('permute: p: %s', p)
+
+  lg.debug('permute: input adjacency: %s', adjacency)
+  adjacency = mtol(adjacency)
+  lg.debug('permute: mtol adjacency: %s', adjacency)
+  adjacency = [[
+    p.index(i) for i in adjacency[j]
+  ] for j in p
+  ]
+  lg.debug('permute: dereference shuffle, adjacency: %s', adjacency)
+  adjacency = ltom(adjacency, n)
+  lg.debug('permute: ltom adjacency: %s', adjacency)
+  lg.debug('permute: adjacency: size:%s, dtype:%s',
+           adjacency.size(), adjacency.dtype)
+
+  features = features[p]
+  lg.debug('permute: features: size:%s, dtype:%s',
+           features.size(), features.dtype)
+
+  return adjacency, features
+
 class gr_dataset(Dataset) :
   '''
 For each __getitem__ 
@@ -35,16 +84,33 @@ TODO: 1. schema for padding
       2. parameter num_rectangles
   '''
   def __init__(self,
-               ds_length=65536 # length of dataset
+               ds_length=65536, # length of dataset
+               permute=False,
+               transform_adj=None,
+               transform_v=None
   ) :
     super(gr_dataset, self).__init__()
     self.ds_length = ds_length
+    self.permute = permute
+    self.transform_adj = transform_adj
+    self.transform_v = transform_v
 
   def __len__(self) :
     return self.ds_length
 
   def __getitem__(self, index) :
-    return torch.FloatTensor(ADJACENCY), rand_verts()
+    adjacency, features = ADJACENCY, rand_verts()
+
+    if self.permute :
+      adjacency, features = permute(adjacency, features)
+
+    if self.transform_adj :
+      features = self.transform_adj(adjacency)
+
+    if self.transform_v :
+      features = self.transform_v(verts)
+
+    return adjacency, features
 
 def is_int(s) :
 
@@ -96,7 +162,7 @@ if __name__ == '__main__' :
 
   N = (1 << 16) # ~65K
   dataloader = torch.utils.data.DataLoader(
-    gr_dataset(ds_length=N),
+    gr_dataset(ds_length=N, permute=True),
     batch_size=1024,
     shuffle=False # not required, __getitem__ is independent of index
   )
@@ -105,6 +171,20 @@ if __name__ == '__main__' :
   start = time.time()
   lg.info('Start' )
   
+
+  # seq = None
+  # for i, (A, X) in enumerate(dataloader) :
+  #   if i == 0 :
+  #     lg.info((A.size(), A.dtype, A[0]))
+  #     lg.info((X.size(), X.dtype, X[0]))
+  #     seq = X[:4]
+
+  # end = time.time()
+  # lg.info('End: %s', delT(seconds=(end-start)))
+  # # takes 24s for N=1048K without permute on my dabba
+  # # takes 17s for N=65K with permute on my dabba
+
+  # cv.imwrite('/home/bvr/tmp/draw.png', draw(seq, 256))
   
 def drawRec(A,X, name=""):
 
