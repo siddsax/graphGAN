@@ -47,16 +47,12 @@ class GraphConvolution(Module):
             for i in range(adj.shape[0]):
                 out = []
                 for j in range(adj.shape[1]):
-                    v = input[i,j] - input[i]
-                    o = []
-                    for k in range(adj.shape[1]):
-                        if adj[i,j,k] == 1:
-                            o.append(self.edgeFun(torch.cat([input[i,j], v[k]], dim=0)).view(1, -1))
-                    o = torch.sum(torch.cat(o, dim=0), dim=0)
+                    v = (input[i,j] - input[i])[adj[i,j].type(torch.ByteTensor)]
+                    o = torch.sum(self.edgeFun(torch.cat([input[i,j].repeat(v.shape[0], 1), v], dim=1)), dim=0)
                     # o = torch.max(torch.cat(o, dim=0), dim=0)[0]
                     out.append(o.view(1, -1))
                 out = torch.cat(out, dim=0)
-                output.append(out.view(-1, out.shape[0], out.shape[1]))
+                output.append(out.view(1, out.shape[0], out.shape[1]))
             
             output = torch.cat(output, dim=0)
             # import pdb
