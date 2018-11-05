@@ -52,6 +52,19 @@ def load_data(path="../data/cora/", dataset="cora"):
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+def load_adj(adj):
+
+    # build symmetric adjacency matrix
+    a = adj + torch.t(adj)*(torch.t(adj) > adj).type(torch.FloatTensor)
+    adj = a - adj*(torch.t(adj) > adj).type(torch.FloatTensor)
+
+    # features = normalize(features)
+    # adj = normalize(adj + torch.eye(adj.shape[0]))
+
+    adj = torch.nn.functional.normalize(adj, p=2, dim=1)
+    return adj
+
+
 
 def normalize(mx):
     """Row-normalize sparse matrix"""

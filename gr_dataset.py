@@ -6,12 +6,13 @@ import logging as lg
 import numpy as np
 import cv2 as cv
 import random
+from utils import *
 
 ADJACENCY = torch.FloatTensor(
-  [1, 1, 1, 0,
-   1, 1, 0, 1,
-   1, 0, 1, 1,
-   0, 1, 1, 1]
+  [0, 1, 1, 0,
+   1, 0, 0, 1,
+   1, 0, 0, 1,
+   0, 1, 1, 0]
 ).reshape((-1, 4))
 
 def rand_verts() :
@@ -110,7 +111,7 @@ TODO: 1. schema for padding
     if self.transform_v :
       features = self.transform_v(verts)
 
-    return adjacency, features
+    return load_adj(adjacency), features
 
 def is_int(s) :
 
