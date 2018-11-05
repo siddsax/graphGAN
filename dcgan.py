@@ -108,6 +108,8 @@ for epoch in range(opt.n_epochs):
         if batches_done % opt.sample_interval == 0:
             # import pdb
             # pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             print(xgen[0])
             drawRec(adj[0].detach(), x[0].detach(), name="DrawGT")    
             drawRec(adj[0].detach(), xgen[0].detach(), name="DrawGN")    

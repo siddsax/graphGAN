@@ -6,10 +6,10 @@ import logging as lg
 import numpy as np
 import cv2 as cv
 ADJACENCY = torch.FloatTensor(
-  [0, 1, 1, 0,
-   1, 0, 0, 1,
-   1, 0, 0, 1,
-   0, 1, 1, 0]
+  [1, 1, 1, 0,
+   1, 1, 0, 1,
+   1, 0, 1, 1,
+   0, 1, 1, 1]
 ).reshape((-1, 4))
 
 def rand_verts() :

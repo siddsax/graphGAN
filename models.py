@@ -77,8 +77,9 @@ class GeneratorFT(nn.Module):
         super(GeneratorFT, self).__init__()
 
         self.gc1 = GraphConvolution(2, 5)
-        self.gc2 = GraphConvolution(5, 5)
-        self.gc3 = GraphConvolution(5, 2)
+        self.gc2 = GraphConvolution(5, 8)
+        self.gc3 = GraphConvolution(8, 5)
+        self.gc4 = GraphConvolution(5, 2)
         
         # self.predAdj = predAdj()
 
@@ -87,6 +88,7 @@ class GeneratorFT(nn.Module):
         x = F.relu(self.gc1(x, adj))
         x = F.relu(self.gc2(x, adj))
         x = F.relu(self.gc3(x, adj))
+        x = F.relu(self.gc4(x, adj))
 
         return x
 
@@ -94,8 +96,9 @@ class DiscriminatorFT(nn.Module):
     def __init__(self, numV):
         super(DiscriminatorFT, self).__init__()
 
-        self.gc1 = GraphConvolution(2, 5)
-        self.gc2 = GraphConvolution(5, 1)
+        self.gc1 = GraphConvolution(2, 4)
+        self.gc2 = GraphConvolution(4, 1)
+        # self.gc3 = GraphConvolution(6, 1)
         self.linear = torch.nn.Linear(numV, 1)
         torch.nn.init.xavier_uniform_(self.linear.weight)
 
@@ -103,6 +106,7 @@ class DiscriminatorFT(nn.Module):
     def forward(self, x, adj):
 
         x = F.relu(self.gc1(x, adj))
+        # x = F.relu(self.gc2(x, adj))
         x = self.gc2(x, adj).view(x.shape[0], 1, -1)
         # import pdb
         # pdb.set_trace()
