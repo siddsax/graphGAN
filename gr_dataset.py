@@ -119,7 +119,8 @@ TODO: 1. schema for padding
     if self.transform_v :
       features = self.transform_v(verts)
 
-    return load_adj(adjacency), features
+    # return load_adj(adjacency), features
+    return adjacency, features
 
 def is_int(s) :
 

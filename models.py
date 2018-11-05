@@ -18,20 +18,6 @@ def predAdj(x, fin=0):
     out = torch.cat(out, dim=0)
     return out
 
-class GCN(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, dropout):
-        super(GCN, self).__init__()
-
-        self.gc1 = GraphConvolution(nfeat, nhid)
-        self.gc2 = GraphConvolution(nhid, nclass)
-        self.dropout = dropout
-
-    def forward(self, x, adj):
-        x = F.relu(self.gc1(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = self.gc2(x, adj)
-        return F.log_softmax(x, dim=1)
-
 class GeneratorAD(nn.Module):
     def __init__(self):
         super(GeneratorAD, self).__init__()
@@ -78,26 +64,29 @@ class GeneratorFT(nn.Module):
 
         self.gc1 = GraphConvolution(2, 5)
         self.gc2 = GraphConvolution(5, 5)
-        # self.gc3 = GraphConvolution(8, 5)
         self.gc4 = GraphConvolution(5, 2)
-        
-        # self.predAdj = predAdj()
 
     def forward(self, x, adj):
-# .forwardP
-        # import pdb
-        # pdb.set_trace()
-        x = F.relu(self.gc1.forward(x, adj))
-        # import pdb
-        # pdb.set_trace()
-        x = F.relu(self.gc2.forward(x, adj))
-                
-        # import pdb
-        # pdb.set_trace()
-        x = torch.sigmoid(self.gc4(x, adj))
 
-        # import pdb
-        # pdb.set_trace()
+        x = F.relu(self.gc1(x, adj))
+        x = F.relu(self.gc2(x, adj))
+        x = self.gc4(x, adj)
+        return x
+
+class GeneratorFT2(nn.Module):
+    def __init__(self):
+        super(GeneratorFT2, self).__init__()
+
+        self.gc1 = GraphConvolution(2, 5, Ed = 1)
+        self.gc2 = GraphConvolution(5, 5, Ed = 1)
+        self.gc4 = GraphConvolution(5, 2, Ed = 1)
+
+    def forward(self, x, adj):
+
+        x = F.relu(self.gc1(x, adj))
+        x = F.relu(self.gc2(x, adj))
+        # x = self.gc4(x, adj)
+        x = F.sigmoid(self.gc4(x, adj))
         return x
 
 class DiscriminatorFT(nn.Module):
