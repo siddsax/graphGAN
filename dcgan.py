@@ -33,7 +33,7 @@ opt = parser.parse_args()
 print(opt)
 
 cuda = True if torch.cuda.is_available() else False
-
+typ = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 # Loss function
 adversarial_loss = torch.nn.BCELoss()
 
@@ -66,7 +66,9 @@ for epoch in range(opt.n_epochs):
         valid = Variable(Tensor(x.shape[0], 1).fill_(1.0), requires_grad=False)
         fake = Variable(Tensor(x.shape[0], 1).fill_(0.0), requires_grad=False)
 
-        # # Configure input
+	adj = adj.type(typ)
+        x = x.type(typ)
+	# # Configure input
         # real_imgs = Variable(imgs.type(Tensor))
 
         # -----------------
@@ -111,6 +113,6 @@ for epoch in range(opt.n_epochs):
             # import pdb
             # pdb.set_trace()
             print(xgen[0])
-            drawRec(adj[0].detach(), x[0].detach(), name="DrawGT")    
-            drawRec(adj[0].detach(), xgen[0].detach(), name="DrawGN")    
+            drawRec(adj[0].detach().cpu(), x[0].detach().cpu(), name="DrawGT")    
+            drawRec(adj[0].detach().cpu(), xgen[0].detach().cpu(), name="DrawGN")    
         # save_image(gen_imgs.data[:25], 'images/%d.png' % batches_done, nrow=5, normalize=True
