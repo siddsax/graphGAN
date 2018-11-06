@@ -29,9 +29,12 @@ parser.add_argument('--img_size', type=int, default=32, help='size of each image
 parser.add_argument('--channels', type=int, default=1, help='number of image channels')
 parser.add_argument('--sample_interval', type=int, default=400, help='interval between image sampling')
 parser.add_argument('--numV', type=int, default=4, help='number of max vertices per sample')
+parser.add_argument('--lm', type=str, default="", help='number of max vertices per sample')
+parser.add_argument('--sm', type=str, default="save", help='number of max vertices per sample')
 opt = parser.parse_args()
 print(opt)
 
+opt.sm = opt.sm + "_" + str(np.random.randint(low=0, high=10000))
 cuda = True if torch.cuda.is_available() else False
 typ = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 # Loss function
@@ -58,7 +61,12 @@ Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 #  Training
 # ----------
 
-for epoch in range(opt.n_epochs):
+init = 0
+if len(opt.lm):
+    generator, optimizer_G, init = load_model(generator, "saved_models/" + opt.lm + "_G.pt", optimizer=optimizer_G)
+    discriminator, optimizer_D, _ = load_model(discriminator, "saved_models/" + opt.lm + "_D.pt", optimizer=optimizer_D)
+    opt.sm = opt.lm
+for epoch in range(init, opt.n_epochs):
     for i, (adj, x) in enumerate(dataloader):
 
         # imgs = imgs.type(torch.FloatTensor)[:,0,:]
@@ -114,5 +122,8 @@ for epoch in range(opt.n_epochs):
             # pdb.set_trace()
             print(xgen[0])
             drawRec(adj[0].detach().cpu(), x[0].detach().cpu(), name="DrawGT")    
-            drawRec(adj[0].detach().cpu(), xgen[0].detach().cpu(), name="DrawGN")    
+            drawRec(adj[0].detach().cpu(), xgen[0].detach().cpu(), name="DrawGN")   
+            save_model(generator, optimizer_G, epoch, opt.sm + "_G.pt") 
+            save_model(discriminator, optimizer_D, epoch, opt.sm + "_D.pt") 
         # save_image(gen_imgs.data[:25], 'images/%d.png' % batches_done, nrow=5, normalize=True
+
