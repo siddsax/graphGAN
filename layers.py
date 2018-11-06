@@ -18,7 +18,13 @@ class GraphConvolution(Module):
         self.out_features = out_features
         self.Ed = Ed
         if Ed:
+            a = 2*in_features
+            b = out_features
+            lda = (b-a)/3.0
             self.edgeFun = nn.Sequential(nn.Linear(2*in_features, 3*in_features), nn.ReLU(), nn.Linear(3*in_features, out_features))
+            # self.edgeFun = nn.Sequential(nn.Linear(a, a+int(lda)), nn.ReLU() \
+            #                              , nn.Linear(a+int(lda), a+int(2*lda)), nn.ReLU()
+            #                              , nn.Linear(a+int(2*lda), b))
             for layer in self.edgeFun:
                 try:
                     torch.nn.init.xavier_uniform_(layer.weight)
@@ -40,6 +46,7 @@ class GraphConvolution(Module):
 
     def forward(self, input, adj):
 
+        typ = torch.cuda.ByteTensor if torch.cuda.is_available() else torch.ByteTensor
         if self.Ed:
             t = torch.autograd.Variable(torch.Tensor([0.0]))  # threshold
             adj = (adj > t).float() * 1
@@ -47,7 +54,7 @@ class GraphConvolution(Module):
             for i in range(adj.shape[0]):
                 out = []
                 for j in range(adj.shape[1]):
-                    v = (input[i,j] - input[i])[adj[i,j].type(torch.ByteTensor)]
+                    v = (input[i,j] - input[i])[adj[i,j].type(typ)]
                     o = torch.sum(self.edgeFun(torch.cat([input[i,j].repeat(v.shape[0], 1), v], dim=1)), dim=0)
                     # o = torch.max(torch.cat(o, dim=0), dim=0)[0]
                     out.append(o.view(1, -1))

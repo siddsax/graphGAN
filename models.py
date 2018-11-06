@@ -78,14 +78,15 @@ class GeneratorFT2(nn.Module):
         super(GeneratorFT2, self).__init__()
 
         self.gc1 = GraphConvolution(2, 5, Ed = 1)
-        self.gc2 = GraphConvolution(5, 5, Ed = 1)
+        # self.gc2 = GraphConvolution(5, 5, Ed = 1)
+        # self.gc3 = GraphConvolution(5, 10, Ed = 1)
         self.gc4 = GraphConvolution(5, 2, Ed = 1)
 
     def forward(self, x, adj):
 
         x = F.relu(self.gc1(x, adj))
-        x = F.relu(self.gc2(x, adj))
-        # x = self.gc4(x, adj)
+        # x = F.relu(self.gc2(x, adj))
+        # x = F.relu(self.gc3(x, adj))
         x = F.sigmoid(self.gc4(x, adj))
         return x
 
