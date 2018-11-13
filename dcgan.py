@@ -42,7 +42,7 @@ adversarial_loss = torch.nn.BCELoss()
 
 # Initialize generator and discriminator
 generator = GeneratorFT2()
-discriminator = DiscriminatorFT(opt.numV)
+discriminator = DiscriminatorFT2(opt.numV)
 
 if cuda:
     generator.cuda()
@@ -74,9 +74,9 @@ for epoch in range(init, opt.n_epochs):
         valid = Variable(Tensor(x.shape[0], 1).fill_(1.0), requires_grad=False)
         fake = Variable(Tensor(x.shape[0], 1).fill_(0.0), requires_grad=False)
 
-	adj = adj.type(typ)
+        adj = adj.type(typ)
         x = x.type(typ)
-	# # Configure input
+        # # Configure input
         # real_imgs = Variable(imgs.type(Tensor))
 
         # -----------------

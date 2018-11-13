@@ -47,7 +47,7 @@ class GraphConvolution(Module):
     def forward(self, input, adj):
 
         typ = torch.cuda.ByteTensor if torch.cuda.is_available() else torch.ByteTensor
-	typ2 = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+        typ2 = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
         if self.Ed:
             t = torch.autograd.Variable(torch.Tensor([0.0])).type(typ2)  # threshold
             adj = (adj > t).float() * 1

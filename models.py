@@ -111,3 +111,25 @@ class DiscriminatorFT(nn.Module):
         x = self.linear(x)
         pred = torch.sigmoid(x)
         return pred
+
+class DiscriminatorFT2(nn.Module):
+    def __init__(self, numV):
+        super(DiscriminatorFT2, self).__init__()
+
+        self.gc1 = GraphConvolution(2, 4, Ed = 1)
+        self.gc2 = GraphConvolution(4, 6, Ed = 1)
+        self.gc3 = GraphConvolution(6, 1, Ed = 1)
+        self.linear = torch.nn.Linear(numV, 1)
+        torch.nn.init.xavier_uniform_(self.linear.weight)
+
+
+    def forward(self, x, adj):
+
+        x = F.relu(self.gc1(x, adj))
+        x = F.relu(self.gc2(x, adj))
+        x = F.relu(self.gc3(x, adj)).view(x.shape[0], 1, -1)
+        # import pdb
+        # pdb.set_trace()
+        x = self.linear(x)
+        pred = torch.sigmoid(x)
+        return pred
