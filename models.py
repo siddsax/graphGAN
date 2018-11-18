@@ -78,16 +78,19 @@ class GeneratorFT2(nn.Module):
         super(GeneratorFT2, self).__init__()
 
         self.gc1 = GraphConvolution(2, 5, Ed = 1)
-        # self.gc2 = GraphConvolution(5, 5, Ed = 1)
-        # self.gc3 = GraphConvolution(5, 10, Ed = 1)
-        self.gc4 = GraphConvolution(5, 2, Ed = 1)
+        self.gc2 = GraphConvolution(5, 5, Ed = 1)
+        self.gc3 = GraphConvolution(5, 10, Ed = 1)
+        self.gc4 = GraphConvolution(10, 2, Ed = 1)
+        
+        self.d5 = torch.nn.Dropout(p=0.5)
+        self.d25 = torch.nn.Dropout(p=0.25)
 
     def forward(self, x, adj):
 
-        x = F.relu(self.gc1(x, adj))
-        # x = F.relu(self.gc2(x, adj))
-        # x = F.relu(self.gc3(x, adj))
-        x = F.sigmoid(self.gc4(x, adj))
+        x = self.d5(F.relu(self.gc1(x, adj)))
+        x = self.d5(F.relu(self.gc2(x, adj)))
+        x = self.d5(F.relu(self.gc3(x, adj)))
+        x = (F.tanh(self.gc4(x, adj)) + 1)/2
         return x
 
 class DiscriminatorFT(nn.Module):

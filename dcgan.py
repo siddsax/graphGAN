@@ -66,6 +66,15 @@ if len(opt.lm):
     generator, optimizer_G, init = load_model(generator, "saved_models/" + opt.lm + "_G.pt", optimizer=optimizer_G)
     discriminator, optimizer_D, _ = load_model(discriminator, "saved_models/" + opt.lm + "_D.pt", optimizer=optimizer_D)
     opt.sm = opt.lm
+
+# xrandFix = Variable(Tensor(np.random.rand(2, 4, 2)))
+xrandFix = Variable(Tensor(np.array(
+            [[[0.6094, 0.5296],
+            [0.0501, 0.0959],
+            [0.2523, 0.1996],
+            [0.5192, 0.0039]]]
+            )))
+
 for epoch in range(init, opt.n_epochs):
     for i, (adj, x) in enumerate(dataloader):
 
@@ -87,7 +96,6 @@ for epoch in range(init, opt.n_epochs):
 
         # Sample noise as generator input
         xrand = Variable(Tensor(np.random.rand(x.shape[0], x.shape[1], x.shape[2])))
-
         # # Generate a batch of images
         xgen = generator(xrand, adj)
         # # Loss measures generator's ability to fool the discriminator
@@ -104,8 +112,13 @@ for epoch in range(init, opt.n_epochs):
         optimizer_D.zero_grad()
 
         # # Measure discriminator's ability to classify real from generated samples
-        real_loss = adversarial_loss(discriminator(x, adj).squeeze(), valid.squeeze())
-        fake_loss = adversarial_loss(discriminator(xgen.detach(), adj).squeeze(), fake.squeeze())
+        a = discriminator(x, adj).squeeze()
+        b = discriminator(xgen.detach(), adj).squeeze()
+        
+        frac = (a.sum() + b.sum())/(a.shape[0] + b.shape[0])
+        
+        real_loss = adversarial_loss(a, valid.squeeze())
+        fake_loss = adversarial_loss(b, fake.squeeze())
         d_loss = (real_loss + fake_loss) / 2
 
         d_loss.backward()
@@ -116,12 +129,12 @@ for epoch in range(init, opt.n_epochs):
 
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
-            # import pdb
-            # pdb.set_trace()
-            # import pdb
-            # pdb.set_trace()
+
+            print(frac.data.numpy())
+            generator.eval()
+            xgen = generator(xrandFix, adj[:1])
+            generator.train()
             print(xgen[0])
-            drawRec(adj[0].detach().cpu(), x[0].detach().cpu(), name="DrawGT")    
             drawRec(adj[0].detach().cpu(), xgen[0].detach().cpu(), name="DrawGN")   
             save_model(generator, optimizer_G, epoch, opt.sm + "_G.pt") 
             save_model(discriminator, optimizer_D, epoch, opt.sm + "_D.pt") 
